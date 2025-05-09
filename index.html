@@ -3,51 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de Bord des Ventes</title>
+    <title>Tableau de Bord des Ventes Produits</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
         }
-        .chart-container {
-            width: 100%;
-            max-width: 500px;
-            margin: 20px auto;
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
         }
         .dashboard {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 30px;
             justify-content: center;
         }
         .card {
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            width: 100%;
+            max-width: 450px;
         }
-        h1, h2 {
-            color: #333;
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 15px 0;
+        }
+        .data-link {
+            display: block;
             text-align: center;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin: 30px auto;
+            width: fit-content;
+            transition: background-color 0.3s;
+            font-weight: 500;
+        }
+        .data-link:hover {
+            background-color: #2980b9;
+        }
+        .chart-note {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Tableau de Bord des Ventes</h1>
-    
-    <div class="dashboard">
-        <div class="card">
-            <h2>Chiffre d'affaires par produit</h2>
-            <div class="chart-container">
-                <canvas id="revenueChart"></canvas>
-            </div>
-        </div>
+    <div class="container">
+        <h1>Analyse des Ventes par Produit</h1>
+        <p class="subtitle">Visualisation des performances produits</p>
         
-        <div class="card">
-            <h2>Quantité vendue par produit</h2>
-            <div class="chart-container">
-                <canvas id="quantityChart"></canvas>
+        <a href="https://docs.google.com/spreadsheets/d/16yiWIWL5uRUUO7J4F1RvHEz5pJ8VkGs5xLJgxrQOV94/edit?usp=sharing" 
+           target="_blank" 
+           class="data-link">
+           📊 Accéder aux données complètes
+        </a>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2>Répartition du Chiffre d'Affaires</h2>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <p class="chart-note">Pourcentage du CA total par produit</p>
+            </div>
+            
+            <div class="card">
+                <h2>Distribution des Quantités Vendues</h2>
+                <div class="chart-container">
+                    <canvas id="quantityChart"></canvas>
+                </div>
+                <p class="chart-note">Pourcentage des volumes de vente par produit</p>
             </div>
         </div>
     </div>
@@ -59,7 +108,14 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 14
+                        },
+                        usePointStyle: true,
+                    }
                 },
                 tooltip: {
                     callbacks: {
@@ -68,7 +124,8 @@
                         }
                     }
                 }
-            }
+            },
+            cutout: '60%'
         };
 
         // Données du chiffre d'affaires
@@ -76,7 +133,11 @@
             labels: ['Produit A', 'Produit B', 'Produit C'],
             datasets: [{
                 data: [39, 26, 35],
-                backgroundColor: ['#3498db', '#2ecc71', '#9b59b6'],
+                backgroundColor: [
+                    '#3498db',
+                    '#2ecc71',
+                    '#9b59b6'
+                ],
                 borderWidth: 1
             }]
         };
@@ -86,18 +147,22 @@
             labels: ['Produit A', 'Produit B', 'Produit C'],
             datasets: [{
                 data: [31.2, 17, 51.8],
-                backgroundColor: ['#3498db', '#2ecc71', '#9b59b6'],
+                backgroundColor: [
+                    '#3498db',
+                    '#2ecc71',
+                    '#9b59b6'
+                ],
                 borderWidth: 1
             }]
         };
 
-        // Création des graphiques lorsque la page est chargée
+        // Initialisation des graphiques
         document.addEventListener('DOMContentLoaded', function() {
             // Graphique du chiffre d'affaires
             new Chart(
                 document.getElementById('revenueChart'),
                 {
-                    type: 'pie',
+                    type: 'doughnut',
                     data: revenueData,
                     options: chartOptions
                 }
@@ -107,7 +172,7 @@
             new Chart(
                 document.getElementById('quantityChart'),
                 {
-                    type: 'pie',
+                    type: 'doughnut',
                     data: quantityData,
                     options: chartOptions
                 }

@@ -5,276 +5,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Bord des Ventes</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f7fa;
-            color: #333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .card h2 {
-            margin-top: 0;
-            color: #3498db;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
         .chart-container {
-            position: relative;
-            height: 300px;
             width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        th {
-            background-color: #3498db;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .full-width {
-            grid-column: 1 / -1;
-        }
-        .region-list {
-            columns: 3;
-            list-style-type: none;
-            padding: 0;
-        }
-        .region-list li {
-            margin-bottom: 8px;
-            padding: 5px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            .region-list {
-                columns: 2;
-            }
+        h1, h2 {
+            color: #333;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Tableau de Bord des Ventes</h1>
+    <h1>Tableau de Bord des Ventes</h1>
+    
+    <div class="dashboard">
+        <div class="card">
+            <h2>Chiffre d'affaires par produit</h2>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
         
-        <div class="dashboard">
-            <div class="card">
-                <h2>Répartition du Chiffre d'Affaires par Produit</h2>
-                <div class="chart-container">
-                    <canvas id="revenueChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2>Quantité Vendue par Produit</h2>
-                <div class="chart-container">
-                    <canvas id="quantityChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="card full-width">
-                <h2>Performances Régionales</h2>
-                <div id="regionChart"></div>
-            </div>
-            
-            <div class="card">
-                <h2>Régions</h2>
-                <ul class="region-list">
-                    <li>Bretagne</li>
-                    <li>Normandie</li>
-                    <li>Pays de la Loire</li>
-                    <li>Bourgogne-Franche-Comté</li>
-                    <li>Centre-Val de Loire</li>
-                    <li>Hauts-de-France</li>
-                    <li>Nouvelle-Aquitaine</li>
-                    <li>Occitanie</li>
-                    <li>France métropolitaine</li>
-                    <li>Grand Est</li>
-                    <li>Provence-Alpes-Côte-d'Azur</li>
-                    <li>Auvergne Rhône-Alpes</li>
-                </ul>
-            </div>
-            
-            <div class="card">
-                <h2>Données Normandie</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Valeur</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>17,5</td></tr>
-                        <tr><td>17,1</td></tr>
-                        <tr><td>16,6</td></tr>
-                        <tr><td>15,9</td></tr>
-                        <tr><td>15,3</td></tr>
-                        <tr><td>14,9</td></tr>
-                        <tr><td>13,7</td></tr>
-                        <tr><td>13,3</td></tr>
-                        <tr><td>13,1</td></tr>
-                        <tr><td>13,1</td></tr>
-                        <tr><td>12,9</td></tr>
-                    </tbody>
-                </table>
+        <div class="card">
+            <h2>Quantité vendue par produit</h2>
+            <div class="chart-container">
+                <canvas id="quantityChart"></canvas>
             </div>
         </div>
     </div>
 
     <script>
-        // Données du chiffre d'affaires par produit
+        // Configuration commune des graphiques
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        };
+
+        // Données du chiffre d'affaires
         const revenueData = {
             labels: ['Produit A', 'Produit B', 'Produit C'],
             datasets: [{
                 data: [39, 26, 35],
-                backgroundColor: [
-                    '#3498db',
-                    '#2ecc71',
-                    '#9b59b6'
-                ],
+                backgroundColor: ['#3498db', '#2ecc71', '#9b59b6'],
                 borderWidth: 1
             }]
         };
 
-        // Données des quantités vendues par produit
+        // Données des quantités vendues
         const quantityData = {
             labels: ['Produit A', 'Produit B', 'Produit C'],
             datasets: [{
                 data: [31.2, 17, 51.8],
-                backgroundColor: [
-                    '#3498db',
-                    '#2ecc71',
-                    '#9b59b6'
-                ],
+                backgroundColor: ['#3498db', '#2ecc71', '#9b59b6'],
                 borderWidth: 1
             }]
         };
 
-        // Données régionales pour le graphique radial
-        const regionData = {
-            series: [85, 72, 78, 65, 62, 58, 55, 52, 48, 45, 40, 38],
-            labels: ['Bretagne', 'Normandie', 'Pays de la Loire', 'Bourgogne-Franche-Comté', 
-                    'Centre-Val de Loire', 'Hauts-de-France', 'Nouvelle-Aquitaine', 
-                    'Occitanie', 'France métropolitaine', 'Grand Est', 
-                    'Provence-Alpes-Côte-d'Azur', 'Auvergne Rhône-Alpes']
-        };
-
-        // Initialisation des graphiques
+        // Création des graphiques lorsque la page est chargée
         document.addEventListener('DOMContentLoaded', function() {
             // Graphique du chiffre d'affaires
-            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            new Chart(revenueCtx, {
-                type: 'doughnut',
-                data: revenueData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.label}: ${context.raw}%`;
-                                }
-                            }
-                        }
-                    }
+            new Chart(
+                document.getElementById('revenueChart'),
+                {
+                    type: 'pie',
+                    data: revenueData,
+                    options: chartOptions
                 }
-            });
+            );
 
             // Graphique des quantités vendues
-            const quantityCtx = document.getElementById('quantityChart').getContext('2d');
-            new Chart(quantityCtx, {
-                type: 'doughnut',
-                data: quantityData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.label}: ${context.raw}%`;
-                                }
-                            }
-                        }
-                    }
+            new Chart(
+                document.getElementById('quantityChart'),
+                {
+                    type: 'pie',
+                    data: quantityData,
+                    options: chartOptions
                 }
-            });
-
-            // Graphique radial des régions
-            const regionOptions = {
-                chart: {
-                    height: 350,
-                    type: 'radialBar',
-                },
-                plotOptions: {
-                    radialBar: {
-                        dataLabels: {
-                            name: {
-                                fontSize: '22px',
-                            },
-                            value: {
-                                fontSize: '16px',
-                            },
-                            total: {
-                                show: true,
-                                label: 'Performance Moyenne',
-                                formatter: function (w) {
-                                    return '68%'
-                                }
-                            }
-                        }
-                    }
-                },
-                labels: regionData.labels,
-                colors: ['#3498db', '#2ecc71', '#9b59b6', '#f1c40f', '#e74c3c', '#1abc9c', 
-                        '#34495e', '#d35400', '#27ae60', '#8e44ad', '#c0392b', '#16a085']
-            };
-            const regionChart = new ApexCharts(document.querySelector("#regionChart"), {
-                series: regionData.series,
-                ...regionOptions
-            });
-            regionChart.render();
+            );
         });
     </script>
 </body>

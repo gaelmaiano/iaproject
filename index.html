@@ -93,22 +93,22 @@
         
         <div class="dashboard">
             <div class="card">
-                <h2>Répartition des Ventes par Produit</h2>
+                <h2>Répartition du Chiffre d'Affaires par Produit</h2>
                 <div class="chart-container">
-                    <canvas id="productChart"></canvas>
+                    <canvas id="revenueChart"></canvas>
                 </div>
             </div>
             
             <div class="card">
-                <h2>Performances Régionales</h2>
-                <div id="regionChart"></div>
+                <h2>Quantité Vendue par Produit</h2>
+                <div class="chart-container">
+                    <canvas id="quantityChart"></canvas>
+                </div>
             </div>
             
             <div class="card full-width">
-                <h2>Données Régionales Détailées</h2>
-                <div class="chart-container">
-                    <canvas id="barChart"></canvas>
-                </div>
+                <h2>Performances Régionales</h2>
+                <div id="regionChart"></div>
             </div>
             
             <div class="card">
@@ -156,8 +156,22 @@
     </div>
 
     <script>
-        // Données des produits
-        const productData = {
+        // Données du chiffre d'affaires par produit
+        const revenueData = {
+            labels: ['Produit A', 'Produit B', 'Produit C'],
+            datasets: [{
+                data: [39, 26, 35],
+                backgroundColor: [
+                    '#3498db',
+                    '#2ecc71',
+                    '#9b59b6'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // Données des quantités vendues par produit
+        const quantityData = {
             labels: ['Produit A', 'Produit B', 'Produit C'],
             datasets: [{
                 data: [31.2, 17, 51.8],
@@ -179,25 +193,36 @@
                     'Provence-Alpes-Côte-d'Azur', 'Auvergne Rhône-Alpes']
         };
 
-        // Données pour le graphique à barres
-        const barData = {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            datasets: [{
-                label: 'Ventes 2023',
-                data: [65, 59, 80, 81, 56, 55, 40, 45, 60, 70, 75, 82],
-                backgroundColor: '#3498db',
-                borderColor: '#2980b9',
-                borderWidth: 1
-            }]
-        };
-
         // Initialisation des graphiques
         document.addEventListener('DOMContentLoaded', function() {
-            // Graphique circulaire des produits
-            const productCtx = document.getElementById('productChart').getContext('2d');
-            new Chart(productCtx, {
+            // Graphique du chiffre d'affaires
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
                 type: 'doughnut',
-                data: productData,
+                data: revenueData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Graphique des quantités vendues
+            const quantityCtx = document.getElementById('quantityChart').getContext('2d');
+            new Chart(quantityCtx, {
+                type: 'doughnut',
+                data: quantityData,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -250,22 +275,6 @@
                 ...regionOptions
             });
             regionChart.render();
-
-            // Graphique à barres
-            const barCtx = document.getElementById('barChart').getContext('2d');
-            new Chart(barCtx, {
-                type: 'bar',
-                data: barData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
         });
     </script>
 </body>
